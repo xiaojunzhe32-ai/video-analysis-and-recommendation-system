@@ -2,8 +2,10 @@ package com.video.server.service.impl;
 
 import com.video.server.dto.LoginRequest;
 import com.video.server.dto.LoginResponse;
+import com.video.server.entity.Admin;
 import com.video.server.entity.User;
 import com.video.server.exception.BusinessException;
+import com.video.server.mapper.AdminMapper;
 import com.video.server.mapper.UserMapper;
 import com.video.server.service.AuthService;
 import com.video.server.utils.JwtUtil;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 /**
  * 认证服务实现类
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
     
     private final UserMapper userMapper;
+    private final AdminMapper adminMapper;
     private final JwtUtil jwtUtil;
     
     // 默认密码（用于测试，实际应该加密存储）
@@ -31,9 +33,26 @@ public class AuthServiceImpl implements AuthService {
     
     @Override
     public LoginResponse login(LoginRequest request) {
-        // 查询用户
-        User user = userMapper.selectByUsername(request.getUsername());
+        // 先尝试查询管理员
+        Admin admin = adminMapper.selectByUsername(request.getUsername());
+        if (admin != null) {
+            // 检查管理员状态
+            if (admin.getStatus() != null && admin.getStatus() == 0) {
+                throw new BusinessException(403, "账号已被禁用");
+            }
+            
+            // 验证密码
+            if (!verifyPassword(request.getPassword(), admin.getPassword(), admin.getSalt())) {
+                throw new BusinessException(401, "用户名或密码错误");
+            }
+            
+            // 生成Token
+            String token = jwtUtil.generateToken(admin.getId(), TOKEN_EXPIRE_TIME);
+            return new LoginResponse(token, admin.getId(), admin.getUsername(), "admin");
+        }
         
+        // 如果不是管理员，查询普通用户
+        User user = userMapper.selectByUsername(request.getUsername());
         if (user == null) {
             throw new BusinessException(401, "用户名或密码错误");
         }
@@ -43,30 +62,31 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(403, "账号已被冻结");
         }
         
-        // 验证密码（简化版：实际应该使用加密盐值）
-        // 这里为了简化，直接比较明文密码，实际应该使用加密后的密码比较
-        if (!DEFAULT_PASSWORD.equals(request.getPassword()) && 
-            !user.getPassword().equals(encryptPassword(request.getPassword(), user.getSalt()))) {
+        // 验证密码
+        if (!verifyPassword(request.getPassword(), user.getPassword(), user.getSalt())) {
             throw new BusinessException(401, "用户名或密码错误");
         }
         
-        // 判断用户类型
-        String userType = "admin".equalsIgnoreCase(request.getUsername()) ? "admin" : "user";
-        
         // 生成Token
         String token = jwtUtil.generateToken(user.getId(), TOKEN_EXPIRE_TIME);
-        
-        return new LoginResponse(token, user.getId(), user.getUsername(), userType);
+        return new LoginResponse(token, user.getId(), user.getUsername(), "user");
     }
     
     /**
-     * 加密密码（简化版）
+     * 验证密码
      */
-    private String encryptPassword(String password, String salt) {
-        if (salt == null) {
-            salt = UUID.randomUUID().toString().replace("-", "");
+    private boolean verifyPassword(String inputPassword, String storedPassword, String salt) {
+        // 如果密码是默认密码的MD5（用于测试）
+        if ("e10adc3949ba59abbe56e057f20f883e".equals(storedPassword)) {
+            return DEFAULT_PASSWORD.equals(inputPassword);
         }
-        String saltedPassword = password + salt;
-        return DigestUtils.md5DigestAsHex(saltedPassword.getBytes(StandardCharsets.UTF_8));
+        
+        // 使用盐值加密后比较
+        if (salt == null) {
+            return false;
+        }
+        String saltedPassword = inputPassword + salt;
+        String encryptedPassword = DigestUtils.md5DigestAsHex(saltedPassword.getBytes(StandardCharsets.UTF_8));
+        return encryptedPassword.equals(storedPassword);
     }
 }

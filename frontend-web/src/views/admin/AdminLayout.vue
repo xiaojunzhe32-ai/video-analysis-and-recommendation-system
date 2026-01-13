@@ -13,6 +13,7 @@
         <el-menu-item index="/admin"><i class="el-icon-s-data"></i><span slot="title">数据看板</span></el-menu-item>
         <el-menu-item index="/admin/videos"><i class="el-icon-video-camera"></i><span slot="title">视频管理</span></el-menu-item>
         <el-menu-item index="/admin/users"><i class="el-icon-user"></i><span slot="title">用户管理</span></el-menu-item>
+        <el-menu-item index="/admin/admins"><i class="el-icon-user-solid"></i><span slot="title">管理员管理</span></el-menu-item>
         <el-menu-item index="/admin/logs"><i class="el-icon-document"></i><span slot="title">操作日志</span></el-menu-item>
       </el-menu>
     </el-aside>
@@ -125,6 +126,7 @@ export default {
       const map = {
         'VideoManage': '视频管理',
         'UserManage': '用户管理',
+        'AdminManage': '管理员管理',
         'AdminLogs': '操作日志'
       };
       return map[this.$route.name] || '当前页面';

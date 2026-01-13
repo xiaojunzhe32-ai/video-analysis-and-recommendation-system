@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { authApi } from '@/api/index'
+
 export default {
   name: 'UserLogin',
   data() {
@@ -52,40 +54,31 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.loading = true;
-          // 模拟网络延迟，让交互更真实
-          setTimeout(() => {
-            const { username, password } = this.loginForm;
-
-            // --- 场景 1: 管理员登录 (去后台) ---
-            if (username === 'admin' && password === '123456') {
-              // 1. 存 Token
-              localStorage.setItem('adminToken', 'admin-token-secret');
-              localStorage.setItem('username', 'Admin'); // 存个名字
+          
+          // 调用后端登录接口
+          authApi.login(this.loginForm)
+            .then(res => {
+              const { token, userType, username } = res.data;
               
-              // 2. 提示并跳转
-              this.$message.success('管理员登录成功，正在进入后台...');
-              this.$router.push('/admin'); 
-            } 
-            
-            // --- 场景 2: 普通用户登录 (去前台) ---
-            // 只要账号不是 admin，且密码不为空，都视为普通用户
-            else if (username !== 'admin' && password.length >= 1) {
-              // 1. 存 Token
-              localStorage.setItem('userToken', 'user-token-secret');
-              localStorage.setItem('username', username);
-              
-              // 2. 提示并跳转
-              this.$message.success('用户登录成功，欢迎回来！');
-              this.$router.push('/main'); 
-            } 
-            
-            // --- 场景 3: 账号或密码错误 ---
-            else {
-              this.$message.error('账号或密码错误 (管理员: admin/123456)');
-            }
-            
-            this.loading = false;
-          }, 800);
+              // 根据用户类型存储token
+              if (userType === 'admin') {
+                localStorage.setItem('adminToken', token);
+                localStorage.setItem('username', username);
+                this.$message.success('管理员登录成功，正在进入后台...');
+                this.$router.push('/admin');
+              } else {
+                localStorage.setItem('userToken', token);
+                localStorage.setItem('username', username);
+                this.$message.success('用户登录成功，欢迎回来！');
+                this.$router.push('/main');
+              }
+            })
+            .catch(error => {
+              this.$message.error(error.message || '登录失败，请检查账号密码');
+            })
+            .finally(() => {
+              this.loading = false;
+            });
         }
       });
     }

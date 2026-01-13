@@ -15,6 +15,7 @@ import AdminLayout from '../views/admin/AdminLayout.vue'
 import AdminStats from '../views/admin/AdminStats.vue'
 import VideoManage from '../views/admin/VideoManage.vue'
 import UserManage from '../views/admin/UserManage.vue'
+import AdminManage from '../views/admin/AdminManage.vue'
 import AdminLogs from '../views/admin/AdminLogs.vue'
 
 Vue.use(VueRouter)
@@ -47,6 +48,7 @@ const routes = [
       { path: '', name: 'AdminStats', component: AdminStats },
       { path: 'videos', name: 'VideoManage', component: VideoManage },
       { path: 'users', name: 'UserManage', component: UserManage },
+      { path: 'admins', name: 'AdminManage', component: AdminManage },
       { path: 'logs', name: 'AdminLogs', component: AdminLogs }
     ]
   },
