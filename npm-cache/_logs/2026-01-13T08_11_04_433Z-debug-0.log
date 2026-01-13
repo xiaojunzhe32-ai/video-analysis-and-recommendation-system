@@ -1,0 +1,11 @@
+0 verbose cli D:\Program Files\nodejs\node.exe D:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.8.2
+2 info using node@v20.19.6
+3 silly config load:file:D:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:D:\Users\xjz20\Documents\GitHub\video-analysis-and-recommendation-system\.npmrc
+5 silly config load:file:C:\Users\xjz20\.npmrc
+6 silly config load:file:D:\Program Files\nodejs\node_global\etc\npmrc
+7 verbose title npm install
+8 verbose argv "install"
+9 verbose logfile logs-max:10 dir:D:\Users\xjz20\Documents\GitHub\video-analysis-and-recommendation-system\npm-cache\_logs\2026-01-13T08_11_04_433Z-
+10 verbose logfile D:\Users\xjz20\Documents\GitHub\video-analysis-and-recommendation-system\npm-cache\_logs\2026-01-13T08_11_04_433Z-debug-0.log
