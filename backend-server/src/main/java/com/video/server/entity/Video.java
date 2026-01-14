@@ -52,6 +52,11 @@ public class Video {
     private VideoStatus status;
     
     /**
+     * 是否热门：0-否，1-是
+     */
+    private Integer isHot;
+    
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

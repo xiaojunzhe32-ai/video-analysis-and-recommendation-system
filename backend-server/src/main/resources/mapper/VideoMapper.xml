@@ -11,12 +11,13 @@
         <result column="view_count" property="playCount"/>
         <result column="like_count" property="likeCount"/>
         <result column="status" property="status" typeHandler="com.video.server.config.VideoStatusTypeHandler"/>
+        <result column="is_hot" property="isHot"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, title, user_id, cover_url, video_url, view_count, like_count, status, create_time, update_time
+        id, title, user_id, cover_url, video_url, view_count, like_count, status, is_hot, create_time, update_time
     </sql>
 
     <select id="selectById" resultMap="BaseResultMap">
